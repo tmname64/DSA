@@ -22,7 +22,17 @@ def DFS(start_node):
 
     return traversal_order
 
-
-
-
-
+def BFS(start_node):
+    #Need to change it to use a real queue but i dont really want to rn
+    queue = [start_node]
+    visited = set()
+    traversal_order = []
+    while queue:
+        node = queue.pop(0)
+        if node not in visited:
+            visited.add(node)
+            traversal_order.append(node)
+            for neighbor in node.edges:
+                if neighbor not in visited:
+                    queue.append(neighbor)
+    return traversal_order

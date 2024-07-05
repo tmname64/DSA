@@ -26,13 +26,13 @@ class Button:
         return False
 
 class Node:
-    def __init__(self, id, value, x, y, color, edges = []) -> None:
+    def __init__(self, id, value, x, y, color) -> None:
         self.value = value
         self.x = x
         self.y = y
         self.color = color
         self.radius = 20
-        self.edges = edges
+        self.edges = []
 
     def draw(self, screen):
         pg.draw.circle(screen, self.color, (self.x, self.y), self.radius)

@@ -1,15 +1,36 @@
 import pygame as pg
 from interactive_funcs import Button, Node, Edge
-from algos import DFS
+from algos import DFS, BFS
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 
+def update_button_colors():
+    if adding_edge:
+        add_edge_button.color = RED
+    else:
+        add_edge_button.color = GREEN
+
+    if selecting_start_node_DFS:
+        DFS_button.color = RED
+    else:
+        DFS_button.color = GREEN
+
+    if changing_value:
+        change_value_button.color = RED
+    else:
+        change_value_button.color = GREEN
+
+    if selecting_start_node_BFS:
+        BFS_button.color = RED
+    else:
+        BFS_button.color = GREEN
+    
 
 #function to visualize DFS
-def visualize_DFS(traversal_order, screen):
+def visualize_traversal(traversal_order, screen):
     for node in traversal_order:
         node.color = RED
         pg.time.delay(1000)
@@ -19,6 +40,7 @@ def visualize_DFS(traversal_order, screen):
         for edge in edges:
             edge.draw_edge(screen)
         pg.display.update()
+    pg.time.delay(1000)
     for node in traversal_order:
         node.color = GREEN
 
@@ -35,9 +57,10 @@ add_node_button = Button(50, 50, 150, 50, GREEN, "Add Node", BLACK)
 add_edge_button = Button(50, 150, 150, 50, GREEN, "Add Edge", BLACK)
 change_value_button = Button(50, 250, 150, 50, GREEN, "Change Value", BLACK)
 DFS_button = Button(50, 350, 150, 50, GREEN, "DFS", BLACK)
+BFS_button = Button(50, 450, 150, 50, GREEN, "BFS", BLACK)
 
 #list of buttons
-buttons = [add_node_button, add_edge_button, change_value_button, DFS_button]
+buttons = [add_node_button, add_edge_button, change_value_button, DFS_button, BFS_button]
 
 #init lists for all nodes and edges
 nodes = []
@@ -50,7 +73,7 @@ selected_node = None
 #states
 adding_edge = False
 changing_value = False
-selecting_start_node = False
+selecting_start_node_DFS = False
 
 while running == True:
     screen.fill(WHITE)
@@ -66,18 +89,22 @@ while running == True:
 
             #checking if mouse is over any button
             if add_node_button.is_over(pos):
-                selecting_start_node, adding_edge, changing_value = False, False, False
+                selecting_start_node_DFS, adding_edge, changing_value, selecting_start_node_BFS = False, False, False, False
                 nodes.append(Node(len(nodes), len(nodes), 100, 100, GREEN))
             elif add_edge_button.is_over(pos):
-                changing_value, selecting_start_node = False, False
+                changing_value, selecting_start_node_DFS, selecting_start_node_BFS = False, False, False
                 adding_edge = not adding_edge
             elif change_value_button.is_over(pos):
-                adding_edge, selecting_start_node = False, False
+                adding_edge, selecting_start_node_DFS, selecting_start_node_BFS = False, False, False
                 changing_value = not changing_value
             elif DFS_button.is_over(pos):
-                adding_edge, changing_value = False, False
+                adding_edge, changing_value, selecting_start_node_BFS = False, False, False
                 if nodes:
-                    selecting_start_node = True
+                    selecting_start_node_DFS = not selecting_start_node_DFS
+            elif BFS_button.is_over(pos):
+                adding_edge, changing_value, selecting_start_node_DFS = False, False, False
+                if nodes:
+                    selecting_start_node_BFS = not selecting_start_node_BFS
 
             #checking if mouse is over any node
             else:
@@ -89,11 +116,12 @@ while running == True:
                             #set initial node
                             if selected_node == None:
                                 selected_node = node
+                                break
                             #set final node
-                            else:
+                            elif selected_node != None and selected_node != node:
                                 edges.append(Edge(selected_node, node))
                                 selected_node = None
-                                adding_edge = False
+                                pg.time.delay(100)
                                 break
 
                         #changing value
@@ -103,10 +131,24 @@ while running == True:
                             break
                         
                         #DFS
-                        elif selecting_start_node:
+                        elif selecting_start_node_DFS:
                             traversal_order = DFS(node)
-                            visualize_DFS(traversal_order, screen)
-                            selecting_start_node = False
+                            for node in traversal_order:
+                                print(f'for node: {node.value}')
+                                for node2 in node.edges:
+                                    print(node2.value)
+                            visualize_traversal(traversal_order, screen)
+                            selecting_start_node_DFS = False
+                            break
+
+                        elif selecting_start_node_BFS:
+                            traversal_order = BFS(node)
+                            for node in traversal_order:
+                                print(f'for node: {node.value}')
+                                for node2 in node.edges:
+                                    print(node2.value)
+                            visualize_traversal(traversal_order, screen)
+                            selecting_start_node_BFS = False
                             break
 
                         #dragging node
@@ -135,6 +177,7 @@ while running == True:
     #drawing buttons
     for button in buttons:
         button.draw(screen)
+    update_button_colors()
 
     pg.display.update()
     
