@@ -74,6 +74,7 @@ selected_node = None
 adding_edge = False
 changing_value = False
 selecting_start_node_DFS = False
+selecting_start_node_BFS = False
 
 while running == True:
     screen.fill(WHITE)
