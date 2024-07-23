@@ -16,8 +16,8 @@ class Button:
     def draw(self, screen):
         pg.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
         font = pg.font.Font(None, 32)
-        text = font.render(self.text, True, self.text_color)
-        screen.blit(text, (self.x + self.width/2 - text.get_width()/2, self.y + self.height/2 - text.get_height()/2))
+        rendered_text = font.render(self.text, True, self.text_color)
+        screen.blit(rendered_text, (self.x + self.width/2 - rendered_text.get_width()/2, self.y + self.height/2 - rendered_text.get_height()/2))
 
     def is_over(self, pos):
         if pos[0] > self.x and pos[0] < self.x + self.width:
@@ -46,8 +46,8 @@ class Node:
         return False
     
 
-class Edge:
-    def __init__(self, node1, node2, color = BLACK) -> None:
+class Undirected_Edge:
+    def __init__(self, node1, node2, color = BLACK):
         self.node1 = node1
         self.node2 = node2
         self.color = color
@@ -55,4 +55,15 @@ class Edge:
         node2.edges.append(node1)
 
     def draw_edge(self, screen):
+        pg.draw.line(screen, self.color, (self.node1.x, self.node1.y), (self.node2.x, self.node2.y), 5)
+
+class Directed_Edge:
+    def __init__(self, node1, node2, color = BLACK):
+        self.node1 = node1
+        self.node2 = node2
+        self.color = color
+        node1.edges.append(node2)
+
+    def draw_edge(self, screen):
+        #Placeholder for a arrow
         pg.draw.line(screen, self.color, (self.node1.x, self.node1.y), (self.node2.x, self.node2.y), 5)

@@ -1,32 +1,11 @@
 import pygame as pg
-from interactive_funcs import Button, Node, Edge
+from interactive_funcs import Button, Node, Undirected_Edge
 from algos import DFS, BFS
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
-
-def update_button_colors():
-    if adding_edge:
-        add_edge_button.color = RED
-    else:
-        add_edge_button.color = GREEN
-
-    if selecting_start_node_DFS:
-        DFS_button.color = RED
-    else:
-        DFS_button.color = GREEN
-
-    if changing_value:
-        change_value_button.color = RED
-    else:
-        change_value_button.color = GREEN
-
-    if selecting_start_node_BFS:
-        BFS_button.color = RED
-    else:
-        BFS_button.color = GREEN
     
 
 #function to visualize DFS
@@ -56,11 +35,48 @@ running = True
 add_node_button = Button(50, 50, 150, 50, GREEN, "Add Node", BLACK)
 add_edge_button = Button(50, 150, 150, 50, GREEN, "Add Edge", BLACK)
 change_value_button = Button(50, 250, 150, 50, GREEN, "Change Value", BLACK)
+change_direction_button = Button(1000, 50, 150, 50, GREEN, "Undirected", BLACK)
+
+#Undirected Only Buttons
 DFS_button = Button(50, 350, 150, 50, GREEN, "DFS", BLACK)
 BFS_button = Button(50, 450, 150, 50, GREEN, "BFS", BLACK)
 
+#Directed Only Buttons
+
+
 #list of buttons
-buttons = [add_node_button, add_edge_button, change_value_button, DFS_button, BFS_button]
+general_buttons = [add_node_button, add_edge_button, change_value_button, change_direction_button]
+undirected_buttons = [DFS_button, BFS_button]
+
+#Updating button colors and texts
+def update_button_colors():
+    if adding_edge:
+        add_edge_button.color = RED
+    else:
+        add_edge_button.color = GREEN
+
+    if selecting_start_node_DFS:
+        DFS_button.color = RED
+    else:
+        DFS_button.color = GREEN
+
+    if changing_value:
+        change_value_button.color = RED
+    else:
+        change_value_button.color = GREEN
+
+    if selecting_start_node_BFS:
+        BFS_button.color = RED
+    else:
+        BFS_button.color = GREEN
+
+    if directed_state == False:
+        change_direction_button.text = "Undirected"
+        change_direction_button.color = GREEN
+    else:
+        change_direction_button.text = "Directed"
+        change_direction_button.color = RED
+
 
 #init lists for all nodes and edges
 nodes = []
@@ -73,8 +89,10 @@ selected_node = None
 #states
 adding_edge = False
 changing_value = False
+directed_state = False
 selecting_start_node_DFS = False
 selecting_start_node_BFS = False
+
 
 while running == True:
     screen.fill(WHITE)
@@ -98,11 +116,16 @@ while running == True:
             elif change_value_button.is_over(pos):
                 adding_edge, selecting_start_node_DFS, selecting_start_node_BFS = False, False, False
                 changing_value = not changing_value
-            elif DFS_button.is_over(pos):
+            elif change_direction_button.is_over(pos):
+                directed_state = not directed_state
+                adding_edge, selecting_start_node_DFS, selecting_start_node_BFS, changing_value = False, False, False, False
+
+            #Checks for clicks of specifically undirected buttons       
+            elif DFS_button.is_over(pos) and not directed_state:
                 adding_edge, changing_value, selecting_start_node_BFS = False, False, False
                 if nodes:
                     selecting_start_node_DFS = not selecting_start_node_DFS
-            elif BFS_button.is_over(pos):
+            elif BFS_button.is_over(pos) and not directed_state:
                 adding_edge, changing_value, selecting_start_node_DFS = False, False, False
                 if nodes:
                     selecting_start_node_BFS = not selecting_start_node_BFS
@@ -120,7 +143,7 @@ while running == True:
                                 break
                             #set final node
                             elif selected_node != None and selected_node != node:
-                                edges.append(Edge(selected_node, node))
+                                edges.append(Undirected_Edge(selected_node, node))
                                 selected_node = None
                                 pg.time.delay(100)
                                 break
@@ -176,8 +199,14 @@ while running == True:
         edge.draw_edge(screen)
 
     #drawing buttons
-    for button in buttons:
+    for button in general_buttons:
         button.draw(screen)
+
+    if not directed_state:
+        for button in undirected_buttons:
+            button.draw(screen)
+
+        
     update_button_colors()
 
     pg.display.update()

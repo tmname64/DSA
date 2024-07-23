@@ -36,3 +36,4 @@ def BFS(start_node):
                 if neighbor not in visited:
                     queue.append(neighbor)
     return traversal_order
+
